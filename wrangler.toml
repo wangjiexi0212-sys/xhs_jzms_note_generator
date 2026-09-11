@@ -1,0 +1,6 @@
+name = "xhs-jzms-note-generator"
+compatibility_date = "2026-09-11"
+
+[assets]
+directory = "."
+not_found_handling = "single-page-application"
