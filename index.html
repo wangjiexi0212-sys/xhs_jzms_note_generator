@@ -44,75 +44,17 @@
   .poster-wrap {
     flex: 0 0 200px;
     width: 200px;
-    height: 267px;
-    overflow: hidden;
-    border-radius: 14px;
     background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
     box-shadow: 0 10px 34px rgba(0,0,0,.14);
   }
-  .poster {
-    position: relative;
-    width: 1242px; height: 1656px;
-    overflow: hidden;
-    background:
-      radial-gradient(circle at 16px 16px, rgba(0,0,0,.035) 1px, transparent 1.5px) 0 0/28px 28px,
-      linear-gradient(180deg, #fff 0%, #fffaf7 100%);
-    border: 28px solid var(--accent);
-    box-shadow: 0 18px 60px rgba(0,0,0,.18);
-    transform: scale(.16103);
-    transform-origin: top left;
-  }
-  .poster::before {
-    content: "★★★★★★★★★★★★★★★★★★★★★★★★";
-    position: absolute; left: 58px; right: 58px; top: 32px;
-    letter-spacing: 10px; color: var(--accent); opacity: .82;
-    font-size: 23px; white-space: nowrap; overflow: hidden;
-  }
-  .poster::after {
-    content: "";
-    position: absolute; left: 34px; right: 34px; bottom: 28px; height: 28px;
-    background: radial-gradient(circle at 14px 0, transparent 13px, white 14px) 0 0/28px 28px repeat-x;
-  }
-  .topline {
-    position: absolute; top: 76px; left: 92px; right: 92px;
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 24px; color: #2b7773; font-weight: 600;
-  }
-  .badge {
-    border: 2px solid color-mix(in srgb, var(--accent) 78%, white);
-    color: var(--accent); background: rgba(255,255,255,.72);
-    border-radius: 999px; padding: 8px 20px; font-size: 22px;
-  }
-  .headline {
-    position: absolute; top: 130px; left: 92px; right: 92px;
-    min-height: 100px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center;
-  }
-  .headline h1 {
-    margin: 0;
-    color: var(--ink);
-    font-size: 46px;
-    line-height: 1.18;
-    font-weight: 800;
-    letter-spacing: 0;
-  }
-  .headline p { margin: 14px 0 0; color:#8b6670; font-size: 22px; }
   .page-shot {
-    position: absolute;
-    left: 171px; top: 275px;
-    width: 900px; height: auto;
-    border-radius: 6px;
-    box-shadow: 0 18px 42px rgba(30,35,40,.22);
+    display: block;
+    width: 200px;
+    height: auto;
     background: white;
   }
-  .footer {
-    position: absolute; left: 92px; right: 92px; bottom: 64px;
-    display: flex; justify-content: space-between; align-items: center;
-    color: #777; font-size: 20px;
-  }
-  .footer strong { color: var(--ink); }
-
   .copy-panel {
     max-width: 1320px;
     margin: 0 auto 34px;
@@ -180,27 +122,12 @@
     <button id="randomBtn">随机生成一道题</button>
     <button id="downloadBtn" type="button">下载当前三张图</button>
     <div class="meta" id="meta">题库已载入，点击按钮生成。</div>
-    <div class="hint">每张画布固定 1242 × 1656，可直接截图</div>
+    <div class="hint">直接显示原始页面截图，可直接截图</div>
   </div>
   <main class="stage">
-    <div class="poster-wrap"><section class="poster" id="poster1">
-      <div class="topline"><span>结构化面试</span><span class="badge">第 1 页</span></div>
-      <div class="headline"><h1>点击上方按钮随机生成</h1><p>预测题 / 解析</p></div>
-      <img class="page-shot" alt="第 1 页" />
-      <div class="footer"><span>2026 年最新版 · 持续更新</span><strong>教师岗</strong></div>
-    </section></div>
-    <div class="poster-wrap"><section class="poster" id="poster2">
-      <div class="topline"><span>结构化面试</span><span class="badge">第 2 页</span></div>
-      <div class="headline"><h1>思维导图</h1><p>简洁框架，适合截图记忆</p></div>
-      <img class="page-shot" alt="第 2 页" />
-      <div class="footer"><span>2026 年最新版 · 持续更新</span><strong>教师岗</strong></div>
-    </section></div>
-    <div class="poster-wrap"><section class="poster" id="poster3">
-      <div class="topline"><span>结构化面试</span><span class="badge">第 3 页</span></div>
-      <div class="headline"><h1>参考逐字稿</h1><p>重点文字分色呈现</p></div>
-      <img class="page-shot" alt="第 3 页" />
-      <div class="footer"><span>2026 年最新版 · 持续更新</span><strong>教师岗</strong></div>
-    </section></div>
+    <div class="poster-wrap"><img class="page-shot" id="shot1" alt="第 1 页" /></div>
+    <div class="poster-wrap"><img class="page-shot" id="shot2" alt="第 2 页" /></div>
+    <div class="poster-wrap"><img class="page-shot" id="shot3" alt="第 3 页" /></div>
   </main>
   <section class="copy-panel" aria-label="小红书发布文案">
     <div class="copy-grid">
@@ -264,13 +191,10 @@ function pick() {
   current = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
   document.documentElement.style.setProperty('--accent', current.color || '#79B86B');
   document.getElementById('meta').innerHTML = `已生成：<b>${current.category}</b>｜${current.title}｜源页 ${current.start}`;
-  ['poster1','poster2','poster3'].forEach((id, idx) => {
-    const poster = document.getElementById(id);
-    poster.querySelector('.topline span:first-child').textContent = `结构化面试 ${current.category}类`;
-    poster.querySelector('.headline h1').textContent = current.title;
-    poster.querySelector('.headline p').textContent = idx === 0 ? '预测题 / 解析' : (idx === 1 ? '思维导图' : '参考逐字稿');
-    const img = poster.querySelector('img');
+  ['shot1','shot2','shot3'].forEach((id, idx) => {
+    const img = document.getElementById(id);
     img.src = current.pages[idx];
+    img.alt = `${current.category}｜${current.title}｜第 ${idx + 1} 页`;
   });
   updateCopyText();
 }
@@ -308,57 +232,9 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 async function makePosterPng(idx) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 1242; canvas.height = 1656;
-  const ctx = canvas.getContext('2d');
-  const accent = current.color || '#79B86B';
-  const ink = '#7f1d2d';
-
-  ctx.fillStyle = '#fffaf7';
-  ctx.fillRect(0, 0, 1242, 1656);
-  ctx.fillStyle = 'rgba(0,0,0,.035)';
-  for (let y = 16; y < 1656; y += 28) for (let x = 16; x < 1242; x += 28) {
-    ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
-  }
-  ctx.strokeStyle = accent;
-  ctx.lineWidth = 56;
-  ctx.strokeRect(28, 28, 1186, 1600);
-
-  ctx.fillStyle = accent;
-  ctx.globalAlpha = .82;
-  ctx.font = '23px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText('★★★★★★★★★★★★★★★★★★★★★★★★', 58, 60);
-  ctx.globalAlpha = 1;
-
-  ctx.fillStyle = '#2b7773';
-  ctx.font = '600 24px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText(`结构化面试 ${current.category}类`, 92, 102);
-  ctx.strokeStyle = accent; ctx.lineWidth = 2;
-  roundRect(ctx, 980, 74, 160, 46, 23); ctx.stroke();
-  ctx.fillStyle = accent; ctx.font = '22px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText(`第 ${idx + 1} 页`, 1012, 105);
-
-  ctx.fillStyle = ink;
-  ctx.font = '800 46px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.textAlign = 'center';
-  drawWrappedText(ctx, current.title, 621, 185, 900, 56, 2);
-  ctx.fillStyle = '#8b6670';
-  ctx.font = '22px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText(idx === 0 ? '预测题 / 解析' : (idx === 1 ? '思维导图' : '参考逐字稿'), 621, 252);
-  ctx.textAlign = 'left';
-
-  const img = await loadImage(current.pages[idx]);
-  ctx.shadowColor = 'rgba(30,35,40,.22)'; ctx.shadowBlur = 42; ctx.shadowOffsetY = 18;
-  ctx.fillStyle = '#fff'; ctx.fillRect(171, 275, 900, 1274);
-  ctx.drawImage(img, 171, 275, 900, 1274);
-  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-  ctx.fillStyle = '#777'; ctx.font = '20px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText('2026 年最新版 · 持续更新', 92, 1592);
-  ctx.fillStyle = ink; ctx.font = '700 20px "PingFang SC", "Microsoft YaHei", sans-serif';
-  ctx.fillText('教师岗', 1080, 1592);
-
-  return canvas.toDataURL('image/png');
+  const response = await fetch(current.pages[idx]);
+  const blob = await response.blob();
+  return URL.createObjectURL(blob);
 }
 async function downloadCurrent() {
   if (!current) return;
