@@ -165,7 +165,7 @@ function shuffledTags() {
 }
 function updateCopyText() {
   if (!current) return;
-  document.getElementById('titleText').value = current.title || '';
+  document.getElementById('titleText').value = `教师岗结构化面试热点：${current.title || ''}`;
   document.getElementById('bodyText').value = current.question || current.title || '';
   document.getElementById('tagsText').value = shuffledTags();
 }
