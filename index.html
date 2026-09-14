@@ -44,6 +44,7 @@
   .poster-wrap {
     flex: 0 0 200px;
     width: 200px;
+    height: 267px;
     background: #fff;
     border-radius: 6px;
     overflow: hidden;
@@ -52,7 +53,8 @@
   .page-shot {
     display: block;
     width: 200px;
-    height: auto;
+    height: 267px;
+    object-fit: cover;
     background: white;
   }
   .copy-panel {
@@ -122,7 +124,7 @@
     <button id="randomBtn">随机生成一道题</button>
     <button id="downloadBtn" type="button">下载当前三张图</button>
     <div class="meta" id="meta">题库已载入，点击按钮生成。</div>
-    <div class="hint">直接显示原始页面截图，可直接截图</div>
+    <div class="hint">自动放大页面内容，适合小红书封面截图</div>
   </div>
   <main class="stage">
     <div class="poster-wrap"><img class="page-shot" id="shot1" alt="第 1 页" /></div>
@@ -187,16 +189,20 @@ async function copyAllText() {
     tmp.value = text; document.body.appendChild(tmp); tmp.select(); document.execCommand('copy'); tmp.remove();
   }
 }
-function pick() {
+async function pick() {
   current = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
   document.documentElement.style.setProperty('--accent', current.color || '#79B86B');
   document.getElementById('meta').innerHTML = `已生成：<b>${current.category}</b>｜${current.title}｜源页 ${current.start}`;
   ['shot1','shot2','shot3'].forEach((id, idx) => {
     const img = document.getElementById(id);
-    img.src = current.pages[idx];
     img.alt = `${current.category}｜${current.title}｜第 ${idx + 1} 页`;
+    img.src = current.pages[idx];
   });
   updateCopyText();
+  for (let i = 0; i < 3; i++) {
+    const img = document.getElementById(`shot${i + 1}`);
+    img.src = await makePosterPng(i);
+  }
 }
 function loadImage(src) {
   return new Promise((resolve, reject) => {
@@ -232,9 +238,21 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
 async function makePosterPng(idx) {
-  const response = await fetch(current.pages[idx]);
-  const blob = await response.blob();
-  return URL.createObjectURL(blob);
+  const img = await loadImage(current.pages[idx]);
+  const canvas = document.createElement('canvas');
+  canvas.width = 1242;
+  canvas.height = 1656;
+  const ctx = canvas.getContext('2d');
+
+  // Crop the original PDF page margins and enlarge the useful content.
+  // Keeps the source page style, but makes text much easier to read on XHS.
+  const crop = { x: img.width * 0.105, y: img.height * 0.06, w: img.width * 0.79, h: img.height * 0.88 };
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/png');
 }
 async function downloadCurrent() {
   if (!current) return;
