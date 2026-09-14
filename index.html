@@ -124,7 +124,7 @@
     <button id="randomBtn">随机生成一道题</button>
     <button id="downloadBtn" type="button">下载当前三张图</button>
     <div class="meta" id="meta">题库已载入，点击按钮生成。</div>
-    <div class="hint">自动放大页面内容，适合小红书封面截图</div>
+    <div class="hint">保留外层画框，放大页面正文内容</div>
   </div>
   <main class="stage">
     <div class="poster-wrap"><img class="page-shot" id="shot1" alt="第 1 页" /></div>
@@ -243,15 +243,59 @@ async function makePosterPng(idx) {
   canvas.width = 1242;
   canvas.height = 1656;
   const ctx = canvas.getContext('2d');
+  const accent = current.color || '#79B86B';
+  const ink = '#7f1d2d';
 
-  // Crop the original PDF page margins and enlarge the useful content.
-  // Keeps the source page style, but makes text much easier to read on XHS.
-  const crop = { x: img.width * 0.105, y: img.height * 0.06, w: img.width * 0.79, h: img.height * 0.88 };
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#fffaf7';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(0,0,0,.035)';
+  for (let y = 16; y < canvas.height; y += 28) {
+    for (let x = 16; x < canvas.width; x += 28) {
+      ctx.beginPath(); ctx.arc(x, y, 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 56;
+  ctx.strokeRect(28, 28, 1186, 1600);
+
+  ctx.fillStyle = accent;
+  ctx.globalAlpha = .82;
+  ctx.font = '23px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText('★★★★★★★★★★★★★★★★★★★★★★★★', 58, 60);
+  ctx.globalAlpha = 1;
+
+  ctx.fillStyle = '#2b7773';
+  ctx.font = '600 24px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(`结构化面试 ${current.category}类`, 92, 102);
+  ctx.strokeStyle = accent; ctx.lineWidth = 2;
+  roundRect(ctx, 980, 74, 160, 46, 23); ctx.stroke();
+  ctx.fillStyle = accent; ctx.font = '22px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(`第 ${idx + 1} 页`, 1012, 105);
+
+  ctx.fillStyle = ink;
+  ctx.font = '800 40px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.textAlign = 'center';
+  drawWrappedText(ctx, current.title, 621, 165, 900, 50, 2);
+  ctx.fillStyle = '#8b6670';
+  ctx.font = '22px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText(idx === 0 ? '预测题 / 解析' : (idx === 1 ? '思维导图' : '参考逐字稿'), 621, 245);
+  ctx.textAlign = 'left';
+
+  // Keep the outer frame, but crop page margins and enlarge the useful content inside it.
+  const target = { x: 111, y: 286, w: 1020, h: 1218 };
+  const crop = { x: img.width * 0.105, y: img.height * 0.065, w: img.width * 0.79, h: img.height * 0.87 };
+  ctx.shadowColor = 'rgba(30,35,40,.22)'; ctx.shadowBlur = 34; ctx.shadowOffsetY = 14;
+  ctx.fillStyle = '#fff'; ctx.fillRect(target.x, target.y, target.w, target.h);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, target.x, target.y, target.w, target.h);
+  ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+  ctx.fillStyle = '#777'; ctx.font = '20px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText('2026 年最新版 · 持续更新', 92, 1592);
+  ctx.fillStyle = ink; ctx.font = '700 20px "PingFang SC", "Microsoft YaHei", sans-serif';
+  ctx.fillText('教师岗', 1080, 1592);
+
   return canvas.toDataURL('image/png');
 }
 async function downloadCurrent() {
