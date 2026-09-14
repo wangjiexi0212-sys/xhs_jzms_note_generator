@@ -126,11 +126,7 @@
     <div class="meta" id="meta">题库已载入，点击按钮生成。</div>
     <div class="hint">保留外层画框，放大页面正文内容</div>
   </div>
-  <main class="stage">
-    <div class="poster-wrap"><img class="page-shot" id="shot1" alt="第 1 页" /></div>
-    <div class="poster-wrap"><img class="page-shot" id="shot2" alt="第 2 页" /></div>
-    <div class="poster-wrap"><img class="page-shot" id="shot3" alt="第 3 页" /></div>
-  </main>
+  <main class="stage" id="stage"></main>
   <section class="copy-panel" aria-label="小红书发布文案">
     <div class="copy-grid">
       <div class="copy-card">
@@ -192,14 +188,23 @@ async function copyAllText() {
 async function pick() {
   current = QUESTIONS[Math.floor(Math.random() * QUESTIONS.length)];
   document.documentElement.style.setProperty('--accent', current.color || '#79B86B');
-  document.getElementById('meta').innerHTML = `已生成：<b>${current.category}</b>｜${current.title}｜源页 ${current.start}`;
-  ['shot1','shot2','shot3'].forEach((id, idx) => {
-    const img = document.getElementById(id);
+  const pagesToShow = current.allPages || current.pages;
+  document.getElementById('meta').innerHTML = `已生成：<b>${current.category}</b>｜${current.title}｜共 ${pagesToShow.length} 页｜源页 ${current.start}`;
+  const stage = document.getElementById('stage');
+  stage.innerHTML = '';
+  pagesToShow.forEach((src, idx) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'poster-wrap';
+    const img = document.createElement('img');
+    img.className = 'page-shot';
+    img.id = `shot${idx + 1}`;
     img.alt = `${current.category}｜${current.title}｜第 ${idx + 1} 页`;
-    img.src = current.pages[idx];
+    img.src = src;
+    wrap.appendChild(img);
+    stage.appendChild(wrap);
   });
   updateCopyText();
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < pagesToShow.length; i++) {
     const img = document.getElementById(`shot${i + 1}`);
     img.src = await makePosterPng(i);
   }
