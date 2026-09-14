@@ -283,7 +283,7 @@ async function makePosterPng(idx) {
 
   // Keep the outer frame, but crop page margins and enlarge the useful content inside it.
   const target = { x: 111, y: 286, w: 1020, h: 1218 };
-  const crop = { x: img.width * 0.105, y: img.height * 0.065, w: img.width * 0.79, h: img.height * 0.87 };
+  const crop = { x: img.width * 0.15, y: img.height * 0.105, w: img.width * 0.70, h: img.height * 0.78 };
   ctx.shadowColor = 'rgba(30,35,40,.22)'; ctx.shadowBlur = 34; ctx.shadowOffsetY = 14;
   ctx.fillStyle = '#fff'; ctx.fillRect(target.x, target.y, target.w, target.h);
   ctx.imageSmoothingEnabled = true;
