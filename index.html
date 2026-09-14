@@ -206,7 +206,7 @@ async function pick() {
   updateCopyText();
   for (let i = 0; i < pagesToShow.length; i++) {
     const img = document.getElementById(`shot${i + 1}`);
-    img.src = await makePosterPng(i);
+    img.src = await makePosterPng(i, pagesToShow[i]);
   }
 }
 function loadImage(src) {
@@ -242,8 +242,8 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   if (lines.length > maxLines) lines = lines.slice(0, maxLines);
   lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
 }
-async function makePosterPng(idx) {
-  const img = await loadImage(current.pages[idx]);
+async function makePosterPng(idx, pageSrc = null) {
+  const img = await loadImage(pageSrc || current.pages[idx]);
   const canvas = document.createElement('canvas');
   canvas.width = 1242;
   canvas.height = 1656;
@@ -307,16 +307,19 @@ async function downloadCurrent() {
   if (!current) return;
   const btn = document.getElementById('downloadBtn');
   const oldText = btn.textContent;
-  btn.textContent = '正在生成...'; btn.disabled = true;
-  const safe = `${current.category}-${current.title}`.replace(/[\\/:*?"<>|\s]+/g, '-').slice(0, 48);
-  for (let i = 0; i < 3; i++) {
-    const url = await makePosterPng(i);
+  const pagesToDownload = current.allPages || current.pages;
+  btn.textContent = `正在生成 1/${pagesToDownload.length}...`; btn.disabled = true;
+  const safe = `${current.category}-${current.title}`.replace(/[\/:*?"<>|\s]+/g, '-').slice(0, 48);
+  for (let i = 0; i < pagesToDownload.length; i++) {
+    btn.textContent = `正在生成 ${i + 1}/${pagesToDownload.length}...`;
+    const url = await makePosterPng(i, pagesToDownload[i]);
     const a = document.createElement('a');
     a.href = url;
     a.download = `${safe}-第${i + 1}页.png`;
     document.body.appendChild(a);
     a.click();
     a.remove();
+    await new Promise(resolve => setTimeout(resolve, 180));
   }
   btn.disabled = false; btn.textContent = oldText;
 }
